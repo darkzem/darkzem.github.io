@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Hammer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+    <aside id="tools">
+        <h1>Pixel Hammer</h1>
+
+        <details class="foldoutSection" open>
+            <summary>Tools</summary>
+            <div class="panelBlock">
+                <div class="buttonGrid toolButtonGrid">
+                    <button id="pencilTool">Pencil</button>
+                    <button id="lineTool">Line</button>
+                    <button id="eraserTool">Eraser</button>
+                    <button id="fillTool">Fill</button>
+                    <button id="selectTool">Select</button>
+                    <button id="eyedropperTool">Eyedropper</button>
+                </div>
+            </div>
+        </details>
+
+        <details class="foldoutSection" open>
+            <summary>Brush & View</summary>
+            <div class="panelBlock">
+                <label for="brushSelect" class="miniLabel">Brush Size</label>
+                <select id="brushSelect">
+                    <option value="pixel">1px</option>
+                    <option value="square2">2x2</option>
+                    <option value="square4">4x4</option>
+                    <option value="line5">5px Line</option>
+                    <option value="line5v">5px Vertical</option>
+                    <option value="dither">Dither</option>
+                </select>
+
+                <div class="buttonGrid compactTop">
+                    <button id="mirrorToggle">Mirror</button>
+                    <button id="toggleGrid">Toggle Grid</button>
+                </div>
+
+                <div id="onionSkinPanel" class="compactTop" style="display: none;">
+                    <button id="onionSkinToggle" class="fullButton">Onion Skin: ON</button>
+                </div>
+
+                <div class="foldoutDivider"></div>
+
+                <label class="miniLabel">Zoom</label>
+                <div class="zoomRow">
+                    <button id="zoomOut">-</button>
+                    <div id="zoomLabel">100%</div>
+                    <button id="zoomIn">+</button>
+                </div>
+                <button id="zoomReset" class="fullButton">Reset Zoom</button>
+            </div>
+        </details>
+
+        <details class="foldoutSection" open>
+            <summary>Frames & Playback</summary>
+            <div class="panelBlock">
+                <div id="frameNavRow" class="compactGrid" style="display: none;">
+                    <button id="prevFrame">Prev</button>
+                    <button id="nextFrame">Next</button>
+                </div>
+
+                <div class="compactGrid">
+                    <button id="addFrame">Add</button>
+                    <button id="duplicateFrame">Dup</button>
+                    <button id="deleteFrame" class="wideButton">Delete Frame</button>
+                </div>
+
+                <div id="frameStatus">Frame 1 / 1</div>
+
+                <label for="frameDurationInput" class="miniLabel">Frame Hold</label>
+                <div class="frameDurationRow">
+                    <button id="decreaseFrameDuration">-</button>
+                    <input id="frameDurationInput" type="number" min="1" max="24" step="1" value="1">
+                    <button id="increaseFrameDuration">+</button>
+                </div>
+                <div id="frameDurationStatus">Hold x1</div>
+
+                <div class="foldoutDivider"></div>
+
+                <div class="compactGrid">
+                    <button id="playAnimation">Play</button>
+                    <button id="stopAnimation">Stop</button>
+                </div>
+
+                <label for="fpsInput" class="miniLabel">FPS</label>
+                <input id="fpsInput" type="number" min="1" max="24" step="1" value="6">
+
+                <label for="playbackMode" class="miniLabel">Mode</label>
+                <select id="playbackMode">
+                    <option value="loop" selected>Loop</option>
+                    <option value="pingpong">Ping-Pong</option>
+                    <option value="once">Play Once</option>
+                </select>
+
+                <div id="playbackStatus">Stopped · Loop</div>
+            </div>
+        </details>
+
+        <details class="foldoutSection">
+            <summary>Canvas / Import / Export</summary>
+            <div class="panelBlock">
+                <div class="compactGrid">
+                    <button id="importPNG">Import PNG</button>
+                    <button id="importPNGNewFrame">Import New Frame</button>
+                    <button id="importSpritesheet" class="compactButton">Import Sheet</button>
+                    <button id="exportPNG">Export PNG</button>
+                    <button id="exportSpritesheet">Sheet H</button>
+                    <button id="exportSpritesheetVertical">Sheet V</button>
+                    <button id="exportSpritesheetWrapped">Wrap Sheet</button>
+                </div>
+
+                <div class="foldoutDivider"></div>
+
+                <label for="canvasSize" class="miniLabel">Canvas Size</label>
+                <select id="canvasSize">
+                    <option value="16">16x16</option>
+                    <option value="32" selected>32x32</option>
+                    <option value="64">64x64</option>
+                    <option value="128">128x128</option>
+                    <option value="256">256x256</option>
+                    <option value="512">512x512</option>
+                </select>
+
+                <input id="importPNGInput" type="file" accept="image/png,image/*" style="display: none;">
+                <input id="importPNGNewFrameInput" type="file" accept="image/png,image/*" style="display: none;">
+                <input id="importSpritesheetInput" type="file" accept="image/png,image/*" style="display: none;">
+            </div>
+        </details>
+    </aside>
+
+    <main id="workspace">
+        <div id="canvasContainer">
+            <canvas id="pixelCanvas"></canvas>
+        </div>
+
+        <aside id="previewPanel">
+            <div id="editPanelBlock" class="panelBlock">
+                <h3>Edit</h3>
+                <div class="compactGrid">
+                    <button id="undoButton" class="hotkeyButton">
+                        <span class="buttonMainLabel">Undo</span>
+                        <span class="buttonHotkeyLabel">Ctrl+Z</span>
+                    </button>
+                    <button id="redoButton" class="hotkeyButton">
+                        <span class="buttonMainLabel">Redo</span>
+                        <span class="buttonHotkeyLabel">Ctrl+Y</span>
+                    </button>
+                </div>
+                <div id="historyStatus">Undo 0 / Redo 0</div>
+            </div>
+
+            <details class="foldoutSection" open>
+                <summary>Animation Workspace</summary>
+                <div class="panelBlock">
+                    <div class="buttonGrid">
+                        <button id="showFramesMode" class="activeTool">Frames</button>
+                        <button id="showTilesetMode">Tileset Preview</button>
+                    </div>
+
+                    <div class="panelBlock">
+                        <button id="toggleWorkspacePanel" class="fullButton">Hide Workspace Panel</button>
+                    </div>
+
+                    <div id="animationWorkspaceContent">
+                        <div id="framesWorkspace">
+                            <div class="panelBlock">
+                                <div class="timelineHeaderRow">
+                                    <label class="miniLabel">Timeline Window</label>
+                                    <div class="timelineBrowseRow">
+                                        <button id="timelinePrev">&lt;</button>
+                                        <button id="timelineNext">&gt;</button>
+                                    </div>
+                                </div>
+                                <div id="frameTimeline" class="frameTimeline"></div>
+                            </div>
+
+                            <div class="panelBlock">
+                                <label class="miniLabel" for="frameReorderToggle">Frame Reorder</label>
+                                <button id="frameReorderToggle" class="fullButton">Frames Locked</button>
+                            </div>
+
+                            <div class="panelBlock">
+                                <div class="compactGrid">
+                                    <button id="moveFrameLeft" class="compactButton">Move Left</button>
+                                    <button id="moveFrameRight" class="compactButton">Move Right</button>
+                                </div>
+                            </div>
+
+                            <div class="panelBlock">
+                                <label class="miniLabel" for="toggleLayerMode">Layers</label>
+                                <button id="toggleLayerMode" class="fullButton">Multi-Layer Mode: OFF</button>
+                            </div>
+
+                            <div id="layerPanel" class="panelBlock" style="display: none;">
+                                <div class="compactGrid">
+                                    <button id="addLayer" class="compactButton">Add Layer</button>
+                                    <button id="deleteLayer" class="compactButton">Delete Layer</button>
+                                </div>
+                                <div id="layerStatus">Layer 1 / 1</div>
+                                <div id="layerList" class="layerList"></div>
+                            </div>
+
+                            <div class="panelBlock">
+                                <button id="toggleColorPanel" class="fullButton">Hide Color Panel</button>
+                            </div>
+                        </div>
+
+                        <div id="tilesetWorkspace" style="display: none;">
+                            <div class="panelBlock">
+                                <button id="renderPreview">Render Preview</button>
+                                <canvas id="tilePreview" width="240" height="240"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <details class="foldoutSection" open>
+                <summary>Color</summary>
+                <div id="colorPanelGroup">
+                    <div class="panelBlock">
+                        <label for="colorPicker">Color</label>
+                        <input type="color" id="colorPicker" value="#000000">
+                    </div>
+
+                    <div class="panelBlock">
+                        <h3>Shade Bar</h3>
+                        <canvas id="shadeBar" width="240" height="44"></canvas>
+                    </div>
+
+                    <div class="panelBlock">
+                        <h3>Color Families</h3>
+                        <div id="colorFamilies" class="familyGrid compactPaletteGrid"></div>
+                    </div>
+
+                    <div class="panelBlock">
+                        <h3>Palette</h3>
+
+                        <div class="buttonGrid">
+                            <button id="savePaletteColor">Add Current</button>
+                            <button id="clearPalette">Clear Locked</button>
+                        </div>
+
+                        <label class="miniLabel" for="savedPalette">Locked Colors</label>
+                        <div id="savedPalette" class="swatchGrid compactPaletteGrid"></div>
+
+                        <label class="miniLabel" for="recentPalette">Recent Colors</label>
+                        <div id="recentPalette" class="swatchGrid compactPaletteGrid"></div>
+                    </div>
+
+                    <div class="panelBlock">
+                        <h3>Palette Variant</h3>
+
+                        <label for="variantMode" class="miniLabel">Mode</label>
+                        <select id="variantMode">
+                            <option value="safe" selected>Safe</option>
+                            <option value="wild">Wild</option>
+                        </select>
+
+                        <div class="buttonGrid compactTop">
+                            <button id="generateVariant">Generate</button>
+                            <button id="rerollVariant">Reroll</button>
+                        </div>
+
+                        <div id="variantStatus">Current frame only</div>
+                    </div>
+                </div>
+            </details>
+        </aside>
+    </main>
+
+</div>
+
+<script src="app.js"></script>
+<script src="palette.js"></script>
+
+</body>
+</html>
